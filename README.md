@@ -14,11 +14,11 @@ Realistic Torches BT makes fire-based light sources behave more dynamically and 
 
 - **Reignition System**:
   - Relight extinguished torches, lanterns, and campfires using custom igniters (e.g., flint & steel, blaze rods).
-  - Igniters and their effectiveness are defined in JSON: `data/torchesbt/igniters/`
+  - Igniters and their effectiveness are defined in JSON: `data/torchesbt/igniter/`
 
 - **Fueling System**:
   - Extend burn times with fuel items (e.g., coal, sticks).
-  - Fuel definitions are data-driven via JSON: `data/torchesbt/fuels/`
+  - Fuel definitions are data-driven via JSON: `data/torchesbt/fuel/`
 
 - **Dynamic Lighting (Optional)**:
   - Toggleable dynamic lighting support.
