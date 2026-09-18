@@ -1,0 +1,48 @@
+{
+	"schemaVersion": 1,
+	"id": "torchesbt",
+	"version": "${version}",
+	"name": "Realistic Torches BT",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"tiigerbones!"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/realistic-torchesbt",
+		"sources": "https://github.com/tiigerbones/torchesbt"
+	},
+	"license": "MIT",
+	"icon": "assets/torchesbt/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.enchantedwisp.torchesbt.RealisticTorchesBT"
+		],
+		"client": [
+			"com.enchantedwisp.torchesbt.client.RealisticTorchesBTClient"
+		],
+      "fabric-datagen": [
+        "com.enchantedwisp.torchesbt.RealisticTorchesBTDataGenerator"
+      ],
+      "jade": [
+        "com.enchantedwisp.torchesbt.integration.JadePlugin"
+      ]
+	},
+	"mixins": [
+		"torchesbt.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*",
+		"cloth-config": ">=11.1.136"
+	},
+	"suggests": {
+      "chipped": "*",
+      "lambdynlights": "*",
+      "sodiumdynamiclights": "*",
+      "trinkets": "*",
+      "jade": "*"
+    }
+}

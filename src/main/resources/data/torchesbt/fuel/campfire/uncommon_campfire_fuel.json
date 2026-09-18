@@ -1,0 +1,8 @@
+{
+  "items": [
+    "minecraft:book",
+    "minecraft:coal",
+    "#minecraft:logs_that_burn"
+  ],
+  "add_time": 60
+}

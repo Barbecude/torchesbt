@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_torch_wall",
+  "textures": {
+    "torch": "torchesbt:block/chipped/torch/unlit_dark_oak_torch"
+  }
+}

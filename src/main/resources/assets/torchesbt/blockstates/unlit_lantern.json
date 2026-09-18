@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "hanging=false": {
+      "model": "torchesbt:block/unlit_lantern"
+    },
+    "hanging=true": {
+      "model": "torchesbt:block/unlit_hanging_lantern",
+      "y": 90
+    }
+  }
+}

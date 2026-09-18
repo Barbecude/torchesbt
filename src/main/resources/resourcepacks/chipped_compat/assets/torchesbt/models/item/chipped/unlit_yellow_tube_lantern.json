@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "torchesbt:item/chipped/lantern/unlit_yellow_tube_lantern"
+  }
+}

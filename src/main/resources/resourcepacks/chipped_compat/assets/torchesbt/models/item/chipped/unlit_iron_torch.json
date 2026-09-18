@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "torchesbt:block/chipped/torch/unlit_iron_torch"
+  }
+}

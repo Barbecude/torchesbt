@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "torchesbt:block/unlit_torch"
+    }
+  }
+}

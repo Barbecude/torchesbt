@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_torch",
+  "textures": {
+    "torch": "torchesbt:block/chipped/torch/unlit_glow_torch"
+  }
+}

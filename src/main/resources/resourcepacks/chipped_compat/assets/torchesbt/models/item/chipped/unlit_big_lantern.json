@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "torchesbt:item/chipped/special_lantern/unlit_big_lantern"
+  }
+}

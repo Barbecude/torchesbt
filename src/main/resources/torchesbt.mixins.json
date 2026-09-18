@@ -1,0 +1,26 @@
+{
+  "required": true,
+  "package": "com.enchantedwisp.torchesbt.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "BlockMixin",
+    "CampfireBlockEntityMixin",
+    "CampfireBlockMixin",
+    "ItemMixin",
+    "ItemStackMixin",
+    "LanternBlockMixin",
+    "SpecialLanternBlockMixin",
+    "TorchBlockMixin",
+    "WallTorchBlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "client": [
+    "HandledScreenMixin",
+    "HeldItemRendererMixin"
+  ]
+}

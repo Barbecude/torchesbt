@@ -1,0 +1,33 @@
+{
+  "item.torchesbt.unlit_torch": "Torch",
+  "item.torchesbt.unlit_wall_torch": "Torch",
+  "block.torchesbt.unlit_torch": "Torch",
+  "block.torchesbt.unlit_wall_torch": "Torch",
+  "item.torchesbt.unlit_campfire": "Campfire",
+  "item.torchesbt.unlit_lantern": "Lantern",
+  "item.torchesbt.unlit_wall_lantern": "Lantern",
+  "block.torchesbt.unlit_lantern": "Lantern",
+  "block.torchesbt.unlit_wall_lantern": "Lantern",
+  "item.torchesbt.spark_stone": "Spark Stone",
+
+  "config.torchesbt.category.burnTimes": "Burn Times",
+  "config.torchesbt.torchBurnTime": "Torch Burn Time",
+  "config.torchesbt.torchBurnTime.tooltip": "Burn time for torches in ticks (0 to disable).",
+  "config.torchesbt.lanternBurnTime": "Lantern Burn Time",
+  "config.torchesbt.lanternBurnTime.tooltip": "Burn time for lanterns in ticks (0 to disable).",
+  "config.torchesbt.campfireBurnTime": "Campfire Burn Time",
+  "config.torchesbt.campfireBurnTime.tooltip": "Burn time for campfires in ticks (0 to disable).",
+
+  "tag.torchesbt.strong_igniters": "Strong Igniters",
+  "tag.torchesbt.weak_igniters": "Weak Igniters",
+  "tag.torchesbt.common_fuel": "Common Fuel",
+
+  "config.torchesbt.enableRainExtinguish": "Rain affects Burntime",
+  "config.torchesbt.enableRainExtinguish.tooltip": "Burnout for torches/campfires/lanterns goes faster",
+  "config.torchesbt.rainTorchMultiplier": "Multiplier for Torches",
+  "config.torchesbt.rainCampfireMultiplier": "Multiplier for Campfires",
+  "config.torchesbt.rainLanternMultiplier": "Multiplier for Lanterns",
+  "config.torchesbt.waterLanternMultiplier": "Multiplier for submerged Lanterns",
+  "config.torchesbt.enableDynamicLights": "Enable DynamicLights",
+  "config.torchesbt.enableDynamicLights.tooltip": "Enable dynamic lighting support (ignores whether a mod is installed). Default: false"
+}

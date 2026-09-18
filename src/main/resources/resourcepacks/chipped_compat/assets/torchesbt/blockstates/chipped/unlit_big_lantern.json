@@ -1,0 +1,18 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "torchesbt:block/chipped/special_lantern/unlit_big_lantern"
+    },
+    "facing=south": {
+      "model": "torchesbt:block/chipped/special_lantern/unlit_big_lantern"
+    },
+    "facing=west": {
+      "model": "torchesbt:block/chipped/special_lantern/unlit_big_lantern",
+      "y": 90
+    },
+    "facing=east": {
+      "model": "torchesbt:block/chipped/special_lantern/unlit_big_lantern",
+      "y": 90
+    }
+  }
+}

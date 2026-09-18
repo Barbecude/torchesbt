@@ -1,0 +1,6 @@
+{
+  "parent": "torchesbt:block/chipped/unlit_clear_lantern",
+  "textures": {
+    "0": "torchesbt:block/chipped/lantern/unlit_wrought_iron_lantern"
+  }
+}

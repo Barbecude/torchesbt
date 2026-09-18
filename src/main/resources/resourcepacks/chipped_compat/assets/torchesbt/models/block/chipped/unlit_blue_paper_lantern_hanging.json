@@ -1,0 +1,6 @@
+{
+  "parent": "torchesbt:block/chipped/unlit_paper_lantern_hanging",
+  "textures": {
+    "0": "torchesbt:block/chipped/lantern/unlit_blue_paper_lantern"
+  }
+}

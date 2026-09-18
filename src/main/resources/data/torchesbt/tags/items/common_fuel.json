@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:paper",
+    "minecraft:pink_petals",
+    "#minecraft:small_flowers"
+  ]
+}
