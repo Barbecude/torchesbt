@@ -249,7 +249,7 @@ public class ChippedRegistryHandler {
                     ConfigCache.getTorchBurnTime(),
                     ConfigCache.getRainTorchMultiplier(),
                     ConfigCache.getWaterTorchMultiplier(),
-                    ConfigCache.isAllowLanternTick()
+                    ConfigCache.isAllowTorchTick()
             );
             BurnableRegistry.registerBurnableBlock(
                     litTorchBlock,
@@ -259,7 +259,7 @@ public class ChippedRegistryHandler {
                     ConfigCache.getWaterTorchMultiplier(),
                     true,
                     DefaultFuelTypes.TORCH,
-                    ConfigCache.isAllowLanternTick()
+                    ConfigCache.isAllowTorchTick()
             );
             BurnableRegistry.registerBurnableBlock(
                     litWallTorchBlock,
@@ -269,7 +269,7 @@ public class ChippedRegistryHandler {
                     ConfigCache.getWaterTorchMultiplier(),
                     true,
                     DefaultFuelTypes.TORCH,
-                    ConfigCache.isAllowLanternTick()
+                    ConfigCache.isAllowTorchTick()
             );
             RealisticTorchesBT.LOGGER.debug(
                     "Registered Chipped torch: {} (unlit torch: {}, unlit wall torch: {}, unlit item: {})",

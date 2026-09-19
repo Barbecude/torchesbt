@@ -21,7 +21,9 @@ public class ItemMixin {
         if (BurnableRegistry.isBurnableItem(stack.getItem()) && BurnableRegistry.isTickingEnabled(stack.getItem())) {
             long current = BurnTimeUtils.getCurrentBurnTime(stack);
             long max = BurnTimeUtils.getMaxBurnTime(stack);
-            tooltip.add(Text.literal("Burn Time: " + (current / 20) + "/" + (max / 20)));
+            long curSec = current / 20;
+            long maxSec = max / 20;
+            tooltip.add(Text.literal(String.format("Burn Time: %d:%02d / %d:%02d (%ds)", curSec / 60, curSec % 60, maxSec / 60, maxSec % 60, curSec)));
         }
     }
 }

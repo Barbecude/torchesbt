@@ -59,9 +59,7 @@ public class BurnTimeManager {
         if (player.getWorld().isClient) return;
 
         World world = player.getWorld();
-        BlockPos playerPos = player.getBlockPos();
-        BlockPos headPos = playerPos.up();
-        boolean isRainingOrSnowing = BurnTimeUtils.isActuallyRainingAt(world, headPos) || BurnTimeUtils.isActuallyRainingAt(world, playerPos);
+        boolean isRainingOrSnowing = BurnTimeUtils.isPlayerExposedToRainOrSnow(player);
         boolean isSubmerged = player.isSubmergedIn(FluidTags.WATER);
 
         for (Hand hand : Hand.values()) {
@@ -76,9 +74,10 @@ public class BurnTimeManager {
                 continue;
             }
 
+            boolean isTorch = BurnTimeUtils.isTorch(stack.getItem());
             double rainMult = BurnableRegistry.getRainMultiplier(stack.getItem());
             // Held torches: 3 minutes (3600 ticks) normal vs 30 seconds (600 ticks) in rain/snow (multiplier = 6.0)
-            if (stack.isOf(Items.TORCH) && rainMult < 6.0) {
+            if (isTorch && rainMult < 6.0) {
                 rainMult = 6.0;
             }
             double waterMult = BurnableRegistry.getWaterMultiplier(stack.getItem());
@@ -90,6 +89,12 @@ public class BurnTimeManager {
                 double effectiveMultiplier = 1.0;
                 if (isRainingOrSnowing) {
                     effectiveMultiplier = Math.max(effectiveMultiplier, rainMult);
+                    // Spawn occasional steam/smoke particle when held torch is in rain/snow
+                    if (isTorch && world instanceof net.minecraft.server.world.ServerWorld serverWorld && world.getTime() % 20 == 0) {
+                        serverWorld.spawnParticles(net.minecraft.particle.ParticleTypes.SMOKE,
+                                player.getX(), player.getY() + 1.2, player.getZ(),
+                                1, 0.1, 0.1, 0.1, 0.01);
+                    }
                 }
                 if (isSubmerged && waterMult > 0.0) {  // Ignore if <=0
                     effectiveMultiplier = Math.max(effectiveMultiplier, waterMult);

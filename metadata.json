@@ -1,0 +1,6 @@
+{
+  "name": "Torches BT Mod",
+  "description": "Realistic Torches Minecraft Fabric mod with burn time mechanics and weather extinguishing",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
