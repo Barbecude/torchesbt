@@ -14,8 +14,8 @@ public class HeldItemRendererMixin {
         if (BurnableRegistry.isBurnableItem(stack1.getItem()) && BurnableRegistry.isBurnableItem(stack2.getItem())) {
             ItemStack copy1 = stack1.copy();
             ItemStack copy2 = stack2.copy();
-            copy1.removeSubNbt("remaining_burn");
-            copy2.removeSubNbt("remaining_burn");
+            copy1.remove(com.enchantedwisp.torchesbt.registry.ModDataComponentTypes.REMAINING_BURN);
+            copy2.remove(com.enchantedwisp.torchesbt.registry.ModDataComponentTypes.REMAINING_BURN);
             return ItemStack.areEqual(copy1, copy2);
         }
         return ItemStack.areEqual(stack1, stack2);

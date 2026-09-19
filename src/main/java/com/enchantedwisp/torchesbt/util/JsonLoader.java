@@ -23,6 +23,13 @@ import java.util.Map;
  */
 public class JsonLoader {
     public static final Map<Identifier, Integer> IGNITERS = new HashMap<>();
+    static {
+        IGNITERS.put(Identifier.of("minecraft", "flint_and_steel"), 100);
+        IGNITERS.put(Identifier.of("minecraft", "fire_charge"), 100);
+        IGNITERS.put(Identifier.of("minecraft", "blaze_rod"), 100);
+        IGNITERS.put(Identifier.of("torchesbt", "spark_stone"), 40);
+        IGNITERS.put(Identifier.of("minecraft", "torch"), 40);
+    }
     private static final Logger LOGGER = com.enchantedwisp.torchesbt.RealisticTorchesBT.LOGGER;
     private static final Gson GSON = new Gson();
 

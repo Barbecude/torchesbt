@@ -4,12 +4,10 @@ import com.enchantedwisp.torchesbt.api.FuelTypeAPI;
 import com.enchantedwisp.torchesbt.network.ItemFuelPacket;
 import com.enchantedwisp.torchesbt.core.BurnableRegistry;
 import com.enchantedwisp.torchesbt.util.ConfigCache;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.ScreenHandlerProvider;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
@@ -65,11 +63,7 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> implements Scr
         int handlerSlotId = slot.id;
 
         // Send packet to server
-        ItemFuelPacket packet = new ItemFuelPacket(handlerSlotId, cursorStack);
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        packet.write(buf);
-
-        ClientPlayNetworking.send(ItemFuelPacket.ID, buf);
+        ClientPlayNetworking.send(new ItemFuelPacket(handlerSlotId, cursorStack));
         ci.cancel(); // Prevent default pickup behavior
     }
 }

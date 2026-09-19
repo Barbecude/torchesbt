@@ -67,7 +67,7 @@ public class JadePlugin implements IWailaPlugin {
 
             @Override
             public Identifier getUid() {
-                return new Identifier(RealisticTorchesBT.MOD_ID, "burn_time");
+                return Identifier.of(RealisticTorchesBT.MOD_ID, "burn_time");
             }
 
         }, Block.class);

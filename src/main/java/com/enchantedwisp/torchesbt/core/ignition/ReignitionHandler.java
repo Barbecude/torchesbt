@@ -38,7 +38,7 @@ public class ReignitionHandler {
      */
     protected static void consumeIgniter(ItemStack stack, PlayerEntity player, Hand hand) {
         if (stack.isDamageable()) {
-            stack.damage(1, player, p -> p.sendToolBreakStatus(hand));
+            stack.damage(1, player, net.minecraft.entity.LivingEntity.getSlotForHand(hand));
         } else if (!player.isCreative()) {
             stack.decrement(1);
         }

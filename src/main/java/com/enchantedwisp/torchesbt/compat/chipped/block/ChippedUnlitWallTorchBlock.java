@@ -19,10 +19,12 @@ public class ChippedUnlitWallTorchBlock extends WallTorchBlock {
     private final String variant;
 
     public ChippedUnlitWallTorchBlock(String variant) {
-        super(Settings.copy(Blocks.WALL_TORCH)
+        super(
+                Particles.TORCH_SMOKE,
+                Settings.copy(Blocks.WALL_TORCH)
                         .luminance(state -> 0)
-                        .sounds(BlockSoundGroup.WOOD),
-                Particles.TORCH_SMOKE);
+                        .sounds(BlockSoundGroup.WOOD)
+        );
         this.variant = variant;
     }
 
@@ -51,7 +53,7 @@ public class ChippedUnlitWallTorchBlock extends WallTorchBlock {
     }
 
     @Override
-    public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+    public ItemStack getPickStack(net.minecraft.world.WorldView world, BlockPos pos, BlockState state) {
         return new ItemStack(Registries.ITEM.get(Identifier.of(RealisticTorchesBT.MOD_ID, "chipped.unlit_" + variant.replace("_wall_torch", "_torch"))));
     }
 }

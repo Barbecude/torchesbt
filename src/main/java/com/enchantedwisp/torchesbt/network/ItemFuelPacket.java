@@ -2,44 +2,42 @@ package com.enchantedwisp.torchesbt.network;
 
 import com.enchantedwisp.torchesbt.RealisticTorchesBT;
 import com.enchantedwisp.torchesbt.core.fuel.ItemFuelHandler;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 /**
  * Defines the custom packet for refueling burnable items in the inventory or trinket slots.
  */
-public record ItemFuelPacket(int handlerSlotId, ItemStack fuelStack) {
-    public static final Identifier ID = new Identifier(RealisticTorchesBT.MOD_ID, "refuel_item");
+public record ItemFuelPacket(int handlerSlotId, ItemStack fuelStack) implements CustomPayload {
+    public static final CustomPayload.Id<ItemFuelPacket> ID =
+            new CustomPayload.Id<>(Identifier.of(RealisticTorchesBT.MOD_ID, "refuel_item"));
 
-    public ItemFuelPacket(int handlerSlotId, ItemStack fuelStack) {
-        this.handlerSlotId = handlerSlotId;
-        this.fuelStack = fuelStack.copy(); // Copy to avoid modifying client stack
-    }
+    public static final PacketCodec<RegistryByteBuf, ItemFuelPacket> CODEC = PacketCodec.tuple(
+            PacketCodecs.VAR_INT, ItemFuelPacket::handlerSlotId,
+            ItemStack.PACKET_CODEC, ItemFuelPacket::fuelStack,
+            ItemFuelPacket::new
+    );
 
-    // Encode data to send
-    public void write(PacketByteBuf buf) {
-        buf.writeInt(handlerSlotId);
-        buf.writeItemStack(fuelStack);
-    }
-
-    // Decode data on server
-    public static ItemFuelPacket read(PacketByteBuf buf) {
-        int slotId = buf.readInt();
-        ItemStack stack = buf.readItemStack();
-        return new ItemFuelPacket(slotId, stack);
+    @Override
+    public Id<? extends CustomPayload> getId() {
+        return ID;
     }
 
     /**
-     * Registers the server-side packet handler.
+     * Registers the payload type and server-side packet handler.
      */
     public static void register() {
-        ServerPlayNetworking.registerGlobalReceiver(ID, (server, player, handler, buf, responseSender) -> {
-            ItemFuelPacket packet = ItemFuelPacket.read(buf);
-            server.execute(() -> {
-                // Handle refuel logic
-                ItemFuelHandler.handleRefuel(player, packet.handlerSlotId(), packet.fuelStack());
+        PayloadTypeRegistry.playC2S().register(ID, CODEC);
+
+        ServerPlayNetworking.registerGlobalReceiver(ID, (payload, context) -> {
+            context.server().execute(() -> {
+                ItemFuelHandler.handleRefuel(context.player(), payload.handlerSlotId(), payload.fuelStack());
             });
         });
     }

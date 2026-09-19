@@ -13,8 +13,12 @@ import net.minecraft.block.CampfireBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -54,11 +58,17 @@ public class BurnTimeManager {
     private static void processPlayerItems(PlayerEntity player) {
         if (player.getWorld().isClient) return;
 
+        World world = player.getWorld();
+        BlockPos playerPos = player.getBlockPos();
+        BlockPos headPos = playerPos.up();
+        boolean isRainingOrSnowing = BurnTimeUtils.isActuallyRainingAt(world, headPos) || BurnTimeUtils.isActuallyRainingAt(world, playerPos);
+        boolean isSubmerged = player.isSubmergedIn(FluidTags.WATER);
+
         for (Hand hand : Hand.values()) {
             ItemStack stack = player.getStackInHand(hand);
+            if (stack.isEmpty()) continue;
             if (!BurnableRegistry.isBurnableItem(stack.getItem())) continue;
-
-            if (!ConfigCache.isDynamicLightsEnabled()) continue;
+            if (!BurnableRegistry.isTickingEnabled(stack.getItem())) continue;
 
             long burnTime = BurnTimeUtils.getCurrentBurnTime(stack);
             if (burnTime <= 0) {
@@ -66,13 +76,11 @@ public class BurnTimeManager {
                 continue;
             }
 
-            if (!BurnableRegistry.isTickingEnabled(stack.getItem())) continue;
-
-            World world = player.getWorld();
-            BlockPos pos = player.getBlockPos();
-            boolean isRaining = BurnTimeUtils.isActuallyRainingAt(world, pos);
-            boolean isSubmerged = player.isSubmergedIn(FluidTags.WATER);
             double rainMult = BurnableRegistry.getRainMultiplier(stack.getItem());
+            // Held torches: 3 minutes (3600 ticks) normal vs 30 seconds (600 ticks) in rain/snow (multiplier = 6.0)
+            if (stack.isOf(Items.TORCH) && rainMult < 6.0) {
+                rainMult = 6.0;
+            }
             double waterMult = BurnableRegistry.getWaterMultiplier(stack.getItem());
 
             if (isSubmerged && waterMult == 10.0) {
@@ -80,14 +88,14 @@ public class BurnTimeManager {
                 LOGGER.debug("Instantly extinguished held item due to water submersion (multiplier=10)");
             } else {
                 double effectiveMultiplier = 1.0;
-                if (isRaining) {
+                if (isRainingOrSnowing) {
                     effectiveMultiplier = Math.max(effectiveMultiplier, rainMult);
                 }
                 if (isSubmerged && waterMult > 0.0) {  // Ignore if <=0
                     effectiveMultiplier = Math.max(effectiveMultiplier, waterMult);
                 }
                 // Fire event to allow mods to modify decrement
-                long baseDecrement = (long) Math.ceil(effectiveMultiplier);
+                long baseDecrement = (long) Math.ceil(ITEM_UPDATE_INTERVAL * effectiveMultiplier);
                 BurnTickEvents.PlayerHeldContext heldContext = new BurnTickEvents.PlayerHeldContext(player, stack, baseDecrement);
                 long finalDecrement = BurnTickEvents.PLAYER_HELD.invoker().onTick(heldContext, baseDecrement);
                 burnTime -= finalDecrement;
@@ -104,8 +112,29 @@ public class BurnTimeManager {
     }
 
     private static void extinguishPlayerItem(PlayerEntity player, Hand hand, ItemStack stack) {
-        ItemStack unlit = new ItemStack(Objects.requireNonNull(BurnableRegistry.getUnlitItem(stack.getItem())), stack.getCount());
-        player.setStackInHand(hand, unlit);
+        Item unlitItem = BurnableRegistry.getUnlitItem(stack.getItem());
+        if (unlitItem == null) return;
+
+        World world = player.getWorld();
+        world.playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.PLAYERS, 0.7F, 1.2F);
+        if (world instanceof net.minecraft.server.world.ServerWorld serverWorld) {
+            serverWorld.spawnParticles(net.minecraft.particle.ParticleTypes.SMOKE,
+                    player.getX(), player.getY() + 1.0, player.getZ(),
+                    8, 0.2, 0.2, 0.2, 0.05);
+        }
+
+        if (stack.getCount() > 1) {
+            stack.decrement(1);
+            BurnTimeUtils.setCurrentBurnTime(stack, BurnTimeUtils.getMaxBurnTime(stack));
+            ItemStack unlit = new ItemStack(unlitItem, 1);
+            if (!player.getInventory().insertStack(unlit)) {
+                player.dropItem(unlit, false);
+            }
+        } else {
+            ItemStack unlit = new ItemStack(unlitItem, 1);
+            player.setStackInHand(hand, unlit);
+        }
     }
 
 
@@ -203,7 +232,17 @@ public class BurnTimeManager {
     private static void tickCampfire(World world, BlockPos pos, BlockState state, ICampfireBurnAccessor campfire) {
         long burnTime = campfire.torchesbt_getBurnTime();
 
-        if (burnTime > 0) {
+        if (state.contains(CampfireBlock.LIT) && state.get(CampfireBlock.LIT)) {
+            if (burnTime <= 0) {
+                // Campfire is lit in world, but burn time is 0 (e.g. freshly placed or lit by external source)
+                burnTime = BurnableRegistry.getBurnTime(Blocks.CAMPFIRE);
+                if (burnTime <= 0) {
+                    burnTime = ConfigCache.getCampfireBurnTime();
+                }
+                campfire.torchesbt_setBurnTime(burnTime);
+                return;
+            }
+
             if (!BurnableRegistry.isTickingEnabled(Blocks.CAMPFIRE)) return;
             boolean isRaining = BurnTimeUtils.isActuallyRainingAt(world, pos);
             boolean isSubmerged = world.getFluidState(pos).isIn(FluidTags.WATER);
@@ -227,14 +266,16 @@ public class BurnTimeManager {
                 long finalDecrement = BurnTickEvents.BLOCK.invoker().onTick(blockContext, baseDecrement);
                 burnTime -= finalDecrement;
             }
-            campfire.torchesbt_setBurnTime(Math.max(0, burnTime));
+
+            if (burnTime <= 0) {
+                campfire.torchesbt_setBurnTime(0);
+                world.setBlockState(pos, state.with(CampfireBlock.LIT, false), 3);
+            } else {
+                campfire.torchesbt_setBurnTime(burnTime);
+            }
         }
 
-        if (burnTime <= 0 && state.get(CampfireBlock.LIT)) {
-            world.setBlockState(pos, state.with(CampfireBlock.LIT, false), 3);
-        }
-
-// Sync to client
+        // Sync to client
         if (!world.isClient) {
             world.updateListeners(pos, state, state, 3);
         }

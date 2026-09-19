@@ -79,7 +79,7 @@ public class ItemFuelHandler {
 
         // Consume or damage fuel
         if (fuelStack.isDamageable()) {
-            fuelStack.damage(1, player, p -> {});
+            fuelStack.damage(1, player, net.minecraft.entity.EquipmentSlot.MAINHAND);
             if (fuelStack.isEmpty()) {
                 screenHandler.setCursorStack(ItemStack.EMPTY);
                 serverPlayer.networkHandler.sendPacket(

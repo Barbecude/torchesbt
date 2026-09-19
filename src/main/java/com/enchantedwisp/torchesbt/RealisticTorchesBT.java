@@ -59,7 +59,8 @@ public class RealisticTorchesBT implements ModInitializer {
         FuelTypeLoader.register();
         ItemFuelPacket.register();
 
-        // Register items
+        // Register components & items
+        com.enchantedwisp.torchesbt.registry.ModDataComponentTypes.register();
         RegistryHandler.register();
         ModBlockEntities.register();
         RegistryHandler.registerBurnables();

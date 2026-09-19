@@ -11,11 +11,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 
 /**
  * Mixin to add block entity support and burn time handling for SpecialLanternBlock.
  */
-@Mixin(earth.terrarium.chipped.common.blocks.SpecialLanternBlock.class)
+@Pseudo
+@Mixin(targets = "earth.terrarium.chipped.common.blocks.SpecialLanternBlock", remap = false)
 public abstract class SpecialLanternBlockMixin extends Block implements BlockEntityProvider {
     public SpecialLanternBlockMixin(Settings settings) {
         super(settings);

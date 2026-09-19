@@ -42,7 +42,7 @@ public class ChippedModBlockEntities {
 
             SPECIAL_LANTERN_BLOCK_ENTITY = BlockEntityType.Builder
                     .create(SpecialLanternBlockEntity::new, foundLanterns.values().toArray(new Block[0]))
-                    .build(null);
+                    .build();
 
             Registry.register(
                     Registries.BLOCK_ENTITY_TYPE,

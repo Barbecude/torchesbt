@@ -1,6 +1,7 @@
 package com.enchantedwisp.torchesbt.blockentity;
 
 import com.enchantedwisp.torchesbt.RealisticTorchesBT;
+import com.enchantedwisp.torchesbt.registry.RegistryHandler;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
@@ -9,10 +10,18 @@ import net.minecraft.util.Identifier;
 
 public class ModBlockEntities {
     public static final BlockEntityType<TorchBlockEntity> TORCH_BLOCK_ENTITY =
-            BlockEntityType.Builder.create(TorchBlockEntity::new, Blocks.TORCH, Blocks.WALL_TORCH).build(null);
+            BlockEntityType.Builder.create(TorchBlockEntity::new,
+                    Blocks.TORCH,
+                    Blocks.WALL_TORCH,
+                    RegistryHandler.UNLIT_TORCH_BLOCK,
+                    RegistryHandler.UNLIT_WALL_TORCH_BLOCK
+            ).build();
 
     public static final BlockEntityType<LanternBlockEntity> LANTERN_BLOCK_ENTITY =
-            BlockEntityType.Builder.create(LanternBlockEntity::new, Blocks.LANTERN).build(null);
+            BlockEntityType.Builder.create(LanternBlockEntity::new,
+                    Blocks.LANTERN,
+                    RegistryHandler.UNLIT_LANTERN_BLOCK
+            ).build();
 
     public static void register() {
         Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(RealisticTorchesBT.MOD_ID, "torch_block_entity"), TORCH_BLOCK_ENTITY);

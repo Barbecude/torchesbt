@@ -36,12 +36,12 @@ public class CompatLootTableProvider extends FabricBlockLootTableProvider {
         return "Realistic Torches BT/Compat Loot Tables for minecraft:block";
     }
 
-    public CompatLootTableProvider(FabricDataOutput baseOutput) {
+    public CompatLootTableProvider(FabricDataOutput baseOutput, java.util.concurrent.CompletableFuture<net.minecraft.registry.RegistryWrapper.WrapperLookup> registryLookup) {
         super(new FabricDataOutput(
                 baseOutput.getModContainer(),
                 baseOutput.getPath().resolve("resourcepacks").resolve("chipped_compat"),
                 baseOutput.isStrictValidationEnabled()
-        ));
+        ), registryLookup);
     }
 
     @Override

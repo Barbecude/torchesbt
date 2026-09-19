@@ -11,10 +11,11 @@ import net.minecraft.world.World;
 
 public class UnlitTorchBlock extends TorchBlock {
     public UnlitTorchBlock() {
-        super(Settings.copy(Blocks.TORCH)
+        super(
+                Particles.TORCH_SMOKE,
+                Settings.copy(Blocks.TORCH)
                         .luminance(state -> 0) // No light emission
-                        .sounds(BlockSoundGroup.WOOD),
-                Particles.TORCH_SMOKE
+                        .sounds(BlockSoundGroup.WOOD)
         );
     }
 

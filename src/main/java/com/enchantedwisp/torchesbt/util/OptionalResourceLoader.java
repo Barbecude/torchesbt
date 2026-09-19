@@ -17,7 +17,7 @@ public class OptionalResourceLoader {
 
         if (container == null) return;
 
-        Identifier packId = new Identifier(RealisticTorchesBT.MOD_ID, "empty_lanterns");
+        Identifier packId = Identifier.of(RealisticTorchesBT.MOD_ID, "empty_lanterns");
 
         ResourceManagerHelper.registerBuiltinResourcePack(
                 packId,

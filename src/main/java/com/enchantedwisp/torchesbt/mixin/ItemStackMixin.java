@@ -63,10 +63,6 @@ public class ItemStackMixin {
     private void getMaxCount(CallbackInfoReturnable<Integer> cir) {
         ItemStack stack = (ItemStack) (Object) this;
         if (BurnableRegistry.isBurnableItem(stack.getItem())) {
-            if (!stack.hasNbt() || !Objects.requireNonNull(stack.getNbt()).contains("remaining_burn")) {
-                cir.setReturnValue(stack.getItem().getMaxCount());
-                return;
-            }
             cir.setReturnValue(stack.getItem().getMaxCount());
         }
     }

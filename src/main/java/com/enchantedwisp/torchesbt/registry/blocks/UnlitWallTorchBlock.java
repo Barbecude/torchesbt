@@ -16,10 +16,12 @@ import net.minecraft.world.World;
 
 public class UnlitWallTorchBlock extends WallTorchBlock {
     public UnlitWallTorchBlock() {
-        super(Settings.copy(Blocks.WALL_TORCH)
+        super(
+                Particles.TORCH_SMOKE,
+                Settings.copy(Blocks.WALL_TORCH)
                         .luminance(state -> 0) // No light emission
-                        .sounds(BlockSoundGroup.WOOD),
-                Particles.TORCH_SMOKE);
+                        .sounds(BlockSoundGroup.WOOD)
+        );
     }
 
     @Override
@@ -48,7 +50,7 @@ public class UnlitWallTorchBlock extends WallTorchBlock {
     }
 
     @Override
-    public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+    public ItemStack getPickStack(net.minecraft.world.WorldView world, BlockPos pos, BlockState state) {
         return new ItemStack(RegistryHandler.UNLIT_TORCH);
     }
 }

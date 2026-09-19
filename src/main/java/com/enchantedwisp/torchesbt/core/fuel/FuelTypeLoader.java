@@ -25,8 +25,15 @@ public class FuelTypeLoader {
 
     private static void reset() {
         IGNITERS.clear();
+        // Default vanilla & torchesbt fallbacks in case JSON tags fail to resolve
+        IGNITERS.put(Identifier.of("minecraft", "flint_and_steel"), 100);
+        IGNITERS.put(Identifier.of("minecraft", "fire_charge"), 100);
+        IGNITERS.put(Identifier.of("minecraft", "blaze_rod"), 100);
+        IGNITERS.put(Identifier.of("torchesbt", "spark_stone"), 40);
+        IGNITERS.put(Identifier.of("minecraft", "torch"), 40);
+
         FuelTypeAPI.clear();
-        LOGGER.debug("Reset fuel and igniter registries");
+        LOGGER.debug("Reset fuel and igniter registries with defaults");
     }
 
     /** Load all fuels and igniters from JSON */
@@ -56,7 +63,7 @@ public class FuelTypeLoader {
         // Register reload listener for manual /reloads
         ResourceManagerHelper.get(ResourceType.SERVER_DATA)
                 .registerReloadListener(new SimpleSynchronousResourceReloadListener() {
-                    private final Identifier RELOAD_ID = new Identifier("torchesbt", "json_loader");
+                    private final Identifier RELOAD_ID = Identifier.of("torchesbt", "json_loader");
 
                     @Override
                     public Identifier getFabricId() {

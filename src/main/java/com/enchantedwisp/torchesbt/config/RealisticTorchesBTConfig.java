@@ -28,10 +28,10 @@ public class RealisticTorchesBTConfig implements ConfigData {
     @ConfigEntry.Gui.PrefixText
     public boolean allowCampfireTick = true;
 
-    @Comment("Burn time for torches. Default: 40 Max: 3600")
+    @Comment("Burn time for torches. Default: 180 Max: 3600")
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.BoundedDiscrete(min = 5, max = 3600)
-    public int torchBurnTime = 40;
+    public int torchBurnTime = 180;
 
     @Comment("Burn time for lanterns. Default: 60 Max: 3600")
     @ConfigEntry.BoundedDiscrete(min = 5, max = 3600)
@@ -45,8 +45,8 @@ public class RealisticTorchesBTConfig implements ConfigData {
     @ConfigEntry.Gui.PrefixText
     public boolean enableRainExtinguish = true;
 
-    @Comment("Burn time multiplier for torches in rain. Default: 10.0 (10x faster) Max: 10x")
-    public double rainTorchMultiplier = 10;
+    @Comment("Burn time multiplier for torches in rain. Default: 6.0 (6x faster, 30s) Max: 10x")
+    public double rainTorchMultiplier = 6.0;
 
     @Comment("Burn time multiplier for campfires in rain. Default: 8.5 (8.5x faster) Max: 10x")
     public double rainCampfireMultiplier = 8.5;

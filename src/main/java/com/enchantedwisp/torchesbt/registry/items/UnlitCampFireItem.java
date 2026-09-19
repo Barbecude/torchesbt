@@ -45,8 +45,7 @@ public class UnlitCampFireItem extends Item {
         if (!world.isClient) {
             world.setBlockState(placePos, state, 3);
 
-            assert player != null;
-            player.playSound(SoundEvents.BLOCK_WOOD_PLACE, SoundCategory.BLOCKS, 1, 1);
+            world.playSound(null, placePos, SoundEvents.BLOCK_WOOD_PLACE, SoundCategory.BLOCKS, 1.0F, 1.0F);
 
             if (!player.isCreative()) {
                 context.getStack().decrement(1);

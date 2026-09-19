@@ -32,6 +32,14 @@ public abstract class CampfireBlockEntityMixin extends BlockEntity implements IC
         super(BlockEntityType.CAMPFIRE, pos, state);
     }
 
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void torchesbt_initBurnTime(BlockPos pos, BlockState state, CallbackInfo ci) {
+        if (state.contains(CampfireBlock.LIT) && state.get(CampfireBlock.LIT)) {
+            long max = BurnableRegistry.getBurnTime(state.getBlock());
+            this.torchesbt_burnTime = max > 0 ? max : com.enchantedwisp.torchesbt.util.ConfigCache.getCampfireBurnTime();
+        }
+    }
+
     @Override
     public long torchesbt_getBurnTime() {
         return torchesbt_burnTime;
@@ -40,6 +48,9 @@ public abstract class CampfireBlockEntityMixin extends BlockEntity implements IC
     @Override
     public void torchesbt_setBurnTime(long time) {
         long max = BurnableRegistry.getBurnTime(getCachedState().getBlock());
+        if (max <= 0) {
+            max = com.enchantedwisp.torchesbt.util.ConfigCache.getCampfireBurnTime();
+        }
         this.torchesbt_burnTime = Math.max(0, Math.min(time, max));
         markDirty();
 
@@ -48,19 +59,23 @@ public abstract class CampfireBlockEntityMixin extends BlockEntity implements IC
 
             // Decide flame level
             FlameLevel level = FlameLevel.LOW;
-            double pct = (double) this.torchesbt_burnTime / max;
-            if (pct > 0.50) {
-                level = FlameLevel.FULL;
-            } else if (pct > 0.20) {
-                level = FlameLevel.MID;
+            if (max > 0) {
+                double pct = (double) this.torchesbt_burnTime / max;
+                if (pct > 0.50) {
+                    level = FlameLevel.FULL;
+                } else if (pct > 0.20) {
+                    level = FlameLevel.MID;
+                }
             }
 
-            world.setBlockState(
-                    pos,
-                    state.with(CampfireBlock.LIT, this.torchesbt_burnTime > 0)
-                            .with(FlameLevel.PROPERTY, level),
-                    Block.NOTIFY_ALL
-            );
+            if (state.contains(CampfireBlock.LIT)) {
+                state = state.with(CampfireBlock.LIT, this.torchesbt_burnTime > 0);
+            }
+            if (state.contains(FlameLevel.PROPERTY)) {
+                state = state.with(FlameLevel.PROPERTY, level);
+            }
+
+            world.setBlockState(pos, state, Block.NOTIFY_ALL);
         }
     }
 
@@ -71,12 +86,12 @@ public abstract class CampfireBlockEntityMixin extends BlockEntity implements IC
     }
 
     @Inject(method = "writeNbt", at = @At("TAIL"))
-    private void torchesbt_writeNbt(NbtCompound nbt, CallbackInfo ci) {
+    private void torchesbt_writeNbt(NbtCompound nbt, net.minecraft.registry.RegistryWrapper.WrapperLookup registries, CallbackInfo ci) {
         nbt.putLong(BurnTimeUtils.BURN_TIME_KEY, torchesbt_burnTime);
     }
 
     @Inject(method = "readNbt", at = @At("TAIL"))
-    private void torchesbt_readNbt(NbtCompound nbt, CallbackInfo ci) {
+    private void torchesbt_readNbt(NbtCompound nbt, net.minecraft.registry.RegistryWrapper.WrapperLookup registries, CallbackInfo ci) {
         if (nbt.contains(BurnTimeUtils.BURN_TIME_KEY)) {
             torchesbt_burnTime = nbt.getLong(BurnTimeUtils.BURN_TIME_KEY);
             if (world != null && !world.isClient) {
@@ -86,15 +101,8 @@ public abstract class CampfireBlockEntityMixin extends BlockEntity implements IC
         }
     }
 
-    @Inject(method = "toUpdatePacket*", at = @At("RETURN"), cancellable = true)
-    private void toUpdatePacket(CallbackInfoReturnable<BlockEntityUpdateS2CPacket> cir) {
-        NbtCompound nbt = createNbt();
-        nbt.putLong(BurnTimeUtils.BURN_TIME_KEY, torchesbt_burnTime);
-        cir.setReturnValue(BlockEntityUpdateS2CPacket.create(this, blockEntity -> nbt));
-    }
-
     @Inject(method = "toInitialChunkDataNbt", at = @At("RETURN"), cancellable = true)
-    private void toInitialChunkDataNbt(CallbackInfoReturnable<NbtCompound> cir) {
+    private void toInitialChunkDataNbt(net.minecraft.registry.RegistryWrapper.WrapperLookup registries, CallbackInfoReturnable<NbtCompound> cir) {
         NbtCompound nbt = cir.getReturnValue();
         nbt.putLong(BurnTimeUtils.BURN_TIME_KEY, torchesbt_burnTime);
         cir.setReturnValue(nbt);
