@@ -2,7 +2,7 @@ package com.enchantedwisp.torchesbt.client.particle;
 
 import net.minecraft.client.particle.*;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.DefaultParticleType;
+import net.minecraft.particle.SimpleParticleType;
 import org.jetbrains.annotations.Nullable;
 
 public class CandleSmokeParticle extends SpriteBillboardParticle {
@@ -58,7 +58,7 @@ public class CandleSmokeParticle extends SpriteBillboardParticle {
         return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
     }
 
-    public static class Factory implements ParticleFactory<DefaultParticleType> {
+    public static class Factory implements ParticleFactory<SimpleParticleType> {
         private final SpriteProvider spriteProvider;
 
         public Factory(SpriteProvider spriteProvider) {
@@ -67,7 +67,7 @@ public class CandleSmokeParticle extends SpriteBillboardParticle {
 
         @Nullable
         @Override
-        public Particle createParticle(DefaultParticleType type, ClientWorld world,
+        public Particle createParticle(SimpleParticleType type, ClientWorld world,
                                        double x, double y, double z,
                                        double vx, double vy, double vz) {
             return new CandleSmokeParticle(world, x, y, z, vx, vy, vz, spriteProvider);

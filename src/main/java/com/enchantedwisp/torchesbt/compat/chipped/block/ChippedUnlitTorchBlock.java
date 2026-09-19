@@ -14,10 +14,12 @@ public class ChippedUnlitTorchBlock extends TorchBlock {
     private final String variant;
 
     public ChippedUnlitTorchBlock(String variant) {
-        super(Settings.copy(Blocks.TORCH)
+        super(
+                Particles.TORCH_SMOKE,
+                Settings.copy(Blocks.TORCH)
                         .luminance(state -> 0)
-                        .sounds(BlockSoundGroup.WOOD),
-                Particles.TORCH_SMOKE);
+                        .sounds(BlockSoundGroup.WOOD)
+        );
         this.variant = variant;
     }
 

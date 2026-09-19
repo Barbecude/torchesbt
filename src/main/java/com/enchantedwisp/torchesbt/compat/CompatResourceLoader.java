@@ -19,7 +19,7 @@ public class CompatResourceLoader {
     // Record to hold mod compatibility details
     private record ModCompat(String modId, String packName, String packDisplayName) {
         Identifier getPackId() {
-            return new Identifier(RealisticTorchesBT.MOD_ID, packName);
+            return Identifier.of(RealisticTorchesBT.MOD_ID, packName);
         }
 
         Text getDisplayName() {

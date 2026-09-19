@@ -79,20 +79,20 @@ public class LanternBlockEntity extends BlockEntity implements Burnable {
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
+    protected void readNbt(NbtCompound nbt, net.minecraft.registry.RegistryWrapper.WrapperLookup registries) {
+        super.readNbt(nbt, registries);
         remainingBurnTime = nbt.getLong(REMAINING_KEY);
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
+    protected void writeNbt(NbtCompound nbt, net.minecraft.registry.RegistryWrapper.WrapperLookup registries) {
+        super.writeNbt(nbt, registries);
         nbt.putLong(REMAINING_KEY, remainingBurnTime);
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt() {
-        return createNbt();
+    public NbtCompound toInitialChunkDataNbt(net.minecraft.registry.RegistryWrapper.WrapperLookup registries) {
+        return createNbt(registries);
     }
 
     @Override
