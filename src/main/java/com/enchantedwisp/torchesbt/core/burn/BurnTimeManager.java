@@ -58,7 +58,7 @@ public class BurnTimeManager {
             ItemStack stack = player.getStackInHand(hand);
             if (!BurnableRegistry.isBurnableItem(stack.getItem())) continue;
 
-            if (!ConfigCache.isDynamicLightsEnabled()) continue;
+            if (!BurnableRegistry.isTickingEnabled(stack.getItem())) continue;
 
             long burnTime = BurnTimeUtils.getCurrentBurnTime(stack);
             if (burnTime <= 0) {
@@ -66,11 +66,9 @@ public class BurnTimeManager {
                 continue;
             }
 
-            if (!BurnableRegistry.isTickingEnabled(stack.getItem())) continue;
-
             World world = player.getWorld();
             BlockPos pos = player.getBlockPos();
-            boolean isRaining = BurnTimeUtils.isActuallyRainingAt(world, pos);
+            boolean isRainingOrSnowing = BurnTimeUtils.isActuallyRainingAt(world, pos);
             boolean isSubmerged = player.isSubmergedIn(FluidTags.WATER);
             double rainMult = BurnableRegistry.getRainMultiplier(stack.getItem());
             double waterMult = BurnableRegistry.getWaterMultiplier(stack.getItem());
@@ -80,14 +78,23 @@ public class BurnTimeManager {
                 LOGGER.debug("Instantly extinguished held item due to water submersion (multiplier=10)");
             } else {
                 double effectiveMultiplier = 1.0;
-                if (isRaining) {
-                    effectiveMultiplier = Math.max(effectiveMultiplier, rainMult);
+                boolean isTorch = BurnTimeUtils.isTorch(stack.getItem());
+
+                if (isRainingOrSnowing) {
+                    if (isTorch) {
+                        // Torch held in hand or off hand dies in 30 seconds when raining or snowing (6x burn rate for 180s base)
+                        effectiveMultiplier = Math.max(effectiveMultiplier, 6.0);
+                    } else {
+                        effectiveMultiplier = Math.max(effectiveMultiplier, rainMult);
+                    }
                 }
                 if (isSubmerged && waterMult > 0.0) {  // Ignore if <=0
                     effectiveMultiplier = Math.max(effectiveMultiplier, waterMult);
                 }
-                // Fire event to allow mods to modify decrement
-                long baseDecrement = (long) Math.ceil(effectiveMultiplier);
+
+                // Decrement burn time based on elapsed ticks since last update (ITEM_UPDATE_INTERVAL = 5 ticks)
+                long elapsedTicks = ITEM_UPDATE_INTERVAL;
+                long baseDecrement = (long) Math.ceil(elapsedTicks * effectiveMultiplier);
                 BurnTickEvents.PlayerHeldContext heldContext = new BurnTickEvents.PlayerHeldContext(player, stack, baseDecrement);
                 long finalDecrement = BurnTickEvents.PLAYER_HELD.invoker().onTick(heldContext, baseDecrement);
                 burnTime -= finalDecrement;
@@ -104,8 +111,33 @@ public class BurnTimeManager {
     }
 
     private static void extinguishPlayerItem(PlayerEntity player, Hand hand, ItemStack stack) {
-        ItemStack unlit = new ItemStack(Objects.requireNonNull(BurnableRegistry.getUnlitItem(stack.getItem())), stack.getCount());
-        player.setStackInHand(hand, unlit);
+        net.minecraft.item.Item unlitItem = BurnableRegistry.getUnlitItem(stack.getItem());
+        if (unlitItem == null) return;
+
+        World world = player.getWorld();
+        world.playSound(null, player.getX(), player.getY(), player.getZ(),
+                net.minecraft.sound.SoundEvents.BLOCK_FIRE_EXTINGUISH,
+                net.minecraft.sound.SoundCategory.PLAYERS, 0.5f, 1.2f);
+
+        if (world instanceof net.minecraft.server.world.ServerWorld serverWorld) {
+            serverWorld.spawnParticles(
+                    net.minecraft.particle.ParticleTypes.SMOKE,
+                    player.getX(), player.getY() + 1.2, player.getZ(),
+                    8, 0.1, 0.1, 0.1, 0.02
+            );
+        }
+
+        if (stack.getCount() > 1) {
+            stack.decrement(1);
+            BurnTimeUtils.setCurrentBurnTime(stack, BurnTimeUtils.getMaxBurnTime(stack));
+            ItemStack unlit = new ItemStack(unlitItem, 1);
+            if (!player.getInventory().insertStack(unlit)) {
+                player.dropItem(unlit, false);
+            }
+        } else {
+            ItemStack unlit = new ItemStack(unlitItem, 1);
+            player.setStackInHand(hand, unlit);
+        }
     }
 
 
@@ -163,7 +195,8 @@ public class BurnTimeManager {
                     effectiveMultiplier = Math.max(effectiveMultiplier, waterMult);
                 }
                 // Fire event to allow mods to modify decrement
-                long baseDecrement = (long) Math.ceil(effectiveMultiplier);
+                long elapsedTicks = ITEM_UPDATE_INTERVAL;
+                long baseDecrement = (long) Math.ceil(elapsedTicks * effectiveMultiplier);
                 BurnTickEvents.DroppedItemContext itemContext = new BurnTickEvents.DroppedItemContext(itemEntity, stack, baseDecrement);
                 long finalDecrement = BurnTickEvents.DROPPED_ITEM.invoker().onTick(itemContext, baseDecrement);
                 burnTime -= finalDecrement;
@@ -193,9 +226,10 @@ public class BurnTimeManager {
         if (!BurnableRegistry.isTickingEnabled(block)) return;
 
         // Fire event to allow mods to modify decrement
-        long baseDecrement = (long) Math.ceil(burnable.getRainMultiplier() * (BurnTimeUtils.isActuallyRainingAt(world, pos) ? 1.0 : 0.0)
-                + burnable.getWaterMultiplier() * (world.getFluidState(pos).isIn(FluidTags.WATER) ? 1.0 : 0.0));
-        if (baseDecrement == 0) baseDecrement = 1; // Default tick
+        double mult = burnable.getRainMultiplier() * (BurnTimeUtils.isActuallyRainingAt(world, pos) ? 1.0 : 0.0)
+                + burnable.getWaterMultiplier() * (world.getFluidState(pos).isIn(FluidTags.WATER) ? 1.0 : 0.0);
+        if (mult <= 0.0) mult = 1.0;
+        long baseDecrement = (long) Math.ceil(ITEM_UPDATE_INTERVAL * mult);
         BurnTickEvents.BlockContext blockContext = new BurnTickEvents.BlockContext(world, pos, baseDecrement);
         long finalDecrement = BurnTickEvents.BLOCK.invoker().onTick(blockContext, baseDecrement);
         burnable.setRemainingBurnTime(burnTime - finalDecrement);
@@ -222,7 +256,7 @@ public class BurnTimeManager {
                     effectiveMultiplier = Math.max(effectiveMultiplier, waterMult);
                 }
                 // Fire event to allow mods to modify decrement
-                long baseDecrement = (long) Math.ceil(effectiveMultiplier);
+                long baseDecrement = (long) Math.ceil(ITEM_UPDATE_INTERVAL * effectiveMultiplier);
                 BurnTickEvents.BlockContext blockContext = new BurnTickEvents.BlockContext(world, pos, baseDecrement);
                 long finalDecrement = BurnTickEvents.BLOCK.invoker().onTick(blockContext, baseDecrement);
                 burnTime -= finalDecrement;

@@ -113,6 +113,6 @@ public class ConfigCache {
     }
 
     public static boolean isAllowCampfireTick() {
-        return allowLanternTick;
+        return allowCampfireTick;
     }
 }

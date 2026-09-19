@@ -28,10 +28,10 @@ public class RealisticTorchesBTConfig implements ConfigData {
     @ConfigEntry.Gui.PrefixText
     public boolean allowCampfireTick = true;
 
-    @Comment("Burn time for torches. Default: 40 Max: 3600")
+    @Comment("Burn time for torches in seconds. Default: 180 (3 minutes) Max: 3600")
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.BoundedDiscrete(min = 5, max = 3600)
-    public int torchBurnTime = 40;
+    public int torchBurnTime = 180;
 
     @Comment("Burn time for lanterns. Default: 60 Max: 3600")
     @ConfigEntry.BoundedDiscrete(min = 5, max = 3600)
@@ -45,8 +45,8 @@ public class RealisticTorchesBTConfig implements ConfigData {
     @ConfigEntry.Gui.PrefixText
     public boolean enableRainExtinguish = true;
 
-    @Comment("Burn time multiplier for torches in rain. Default: 10.0 (10x faster) Max: 10x")
-    public double rainTorchMultiplier = 10;
+    @Comment("Burn time multiplier for torches in rain or snow. Default: 6.0 (dies in 30 seconds when base is 3 minutes) Max: 10x")
+    public double rainTorchMultiplier = 6.0;
 
     @Comment("Burn time multiplier for campfires in rain. Default: 8.5 (8.5x faster) Max: 10x")
     public double rainCampfireMultiplier = 8.5;
@@ -66,12 +66,16 @@ public class RealisticTorchesBTConfig implements ConfigData {
     @Override
     public void validatePostLoad() {
         // Clamp BurnTime
+        if (torchBurnTime < 5 || torchBurnTime > 3600) {
+            RealisticTorchesBT.LOGGER.warn("Correcting torchBurnTime: {} to {}. Must be between 5 and 3600", torchBurnTime, Math.max(5, Math.min(3600, torchBurnTime)));
+            torchBurnTime = Math.max(5, Math.min(3600, torchBurnTime));
+        }
         if (lanternBurnTime < 5 || lanternBurnTime > 3600) {
-            RealisticTorchesBT.LOGGER.warn("Correcting torchBurnTime: {} to {}. Must be between 5 and 3600", lanternBurnTime, Math.max(5, Math.min(3600, lanternBurnTime)));
+            RealisticTorchesBT.LOGGER.warn("Correcting lanternBurnTime: {} to {}. Must be between 5 and 3600", lanternBurnTime, Math.max(5, Math.min(3600, lanternBurnTime)));
             lanternBurnTime = Math.max(5, Math.min(3600, lanternBurnTime));
         }
         if (campfireBurnTime < 5 || campfireBurnTime > 3600) {
-            RealisticTorchesBT.LOGGER.warn("Correcting torchBurnTime: {} to {}. Must be between 5 and 3600", campfireBurnTime, Math.max(5, Math.min(3600, campfireBurnTime)));
+            RealisticTorchesBT.LOGGER.warn("Correcting campfireBurnTime: {} to {}. Must be between 5 and 3600", campfireBurnTime, Math.max(5, Math.min(3600, campfireBurnTime)));
             campfireBurnTime = Math.max(5, Math.min(3600, campfireBurnTime));
         }
         // Clamp multipliers

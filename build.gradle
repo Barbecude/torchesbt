@@ -95,6 +95,10 @@ jar {
 	}
 }
 
+tasks.register("assembleDebug") {
+	dependsOn tasks.named("classes")
+}
+
 // configure the maven publication
 publishing {
 	publications {

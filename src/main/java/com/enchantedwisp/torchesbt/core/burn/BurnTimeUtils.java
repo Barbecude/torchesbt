@@ -45,11 +45,17 @@ public class BurnTimeUtils {
     // --- Centralized rain check ---
     public static boolean isActuallyRainingAt(World world, BlockPos pos) {
         if (world.getFluidState(pos).isIn(FluidTags.WATER)) return false; // Submersion handled separately
+        if (!ConfigCache.isRainExtinguishEnabled() || !world.isRaining()) return false;
+        boolean skyVisible = world.isSkyVisible(pos) || world.isSkyVisible(pos.up());
+        if (!skyVisible) return false;
         Biome biome = world.getBiome(pos).value();
         Biome.Precipitation precipitation = biome.getPrecipitation(pos);
-        return ConfigCache.isRainExtinguishEnabled() &&
-                world.isRaining() &&
-                world.isSkyVisible(pos) &&
-                (precipitation == Biome.Precipitation.RAIN || precipitation == Biome.Precipitation.SNOW);
+        return precipitation == Biome.Precipitation.RAIN || precipitation == Biome.Precipitation.SNOW;
+    }
+
+    public static boolean isTorch(net.minecraft.item.Item item) {
+        if (item == net.minecraft.item.Items.TORCH) return true;
+        net.minecraft.util.Identifier id = net.minecraft.registry.Registries.ITEM.getId(item);
+        return id.getPath().contains("torch");
     }
 }
